@@ -2,16 +2,6 @@
 	File:		imu_csv.py
 	Written by: 	Daniel Castle
 	For: 		Dr. Kihei's research (secure traffic cabinets)
-
-	References:
-			https://pythonhosted.org/sense-hat/api/
-			https://www.raspberrypi.org/documentation/hardware/sense-hat/
-			https://projects.raspberrypi.org/en/projects/sense-hat-data-logger/
-			https://projects.raspberrypi.org/en/projects/getting-started-with-the-sense-hat/
-			https://stackoverflow.com/questions/60208/replacements-for-switch-statement-in-python/
-			https://simonwillison.net/2004/May/7/switch/
-			https://stackoverflow.com/5445970/how-to-properly-print-a-list/
-			https://devdungeon.com/content/python-catch-sigint-ctrl-c/
 """
 
 
