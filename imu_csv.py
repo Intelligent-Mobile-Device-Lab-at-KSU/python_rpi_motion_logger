@@ -14,6 +14,75 @@ from datetime import datetime
 record_toggle = True
 current_mode = "idle"
 
+# color definitions for SenseHat 8x8 RGB LED array
+red	 = (255,0,0)
+green	 = (0,255,0)
+blue	 = (0,0,255)
+cyan	 = (0,255,255)
+pink	 = (255,0,255)
+yellow	 = (255,255,0)
+black	 = (0,0,0)
+
+
+def record_color(record_toggle):
+
+	# if recording, make the LED color red (like a camcorder)
+	if record_toggle == True:
+		return red
+	# make the LED color green if not recording
+	else:
+		return green
+
+
+# lock pick mode pattern for 8x8 RGB LED array
+pick_led_pattern = [
+	black, blue, black, black, cyan, cyan, cyan, record_color(record_toggle),	# first row
+	blue, black, blue, black, black, cyan, black, black,				# second row
+	blue, blue, black, black, black, cyan, black, black,				# third row
+	blue, black, black, black, cyan, cyan, cyan, black,				# fourth row
+	black, pink, pink, black, yellow, black, black, black,				# fifth row
+	pink, black, black, black, yellow, black, yellow, black,			# sixth row
+	pink, black, black, black, yellow, yellow, black, black,			# seventh row
+	black, pink, pink, black, yellow, black, yellow, black				# eighth row
+]
+
+# idle mode pattern for 8x8 RGB LED array
+idle_led_pattern = [
+	blue, blue, blue, black, cyan, cyan, black, record_color(record_toggle),	# first row
+	black, blue, black, black, cyan, black, cyan, black,				# second row
+	black, blue, black, black, cyan, black, cyan, black,				# third row
+	blue, blue, blue, black, cyan, cyan, black, black,				# fourth row
+	pink, black, black, black, yellow, yellow, yellow, black,			# fifth row
+	pink, black, black, black, yellow, black, black, black,				# sixth row
+	pink, black, black, black, yellow, yellow, black, black,			# seventh row
+	pink, pink, pink, black, yellow, yellow, yellow, black				# eighth row
+]
+
+# lock mode pattern for 8x8 RGB LED array
+lock_led_pattern = [
+	blue, black, black, black, black, cyan, black, record_color(record_toggle),	# first row
+	blue, black, black, black, cyan, black, cyan, black,				# second row
+	blue, black, black, black, cyan, black, cyan, black,				# third row
+	blue, blue, blue, black, black, cyan, black, black,				# fourth row
+	black, pink, pink, black, yellow, black, black, black,				# fifth row
+	pink, black, black, black, yellow, black, yellow, black,			# sixth row
+	pink, black, black, black, yellow, yellow, black, black, 			# seventh row
+	black, pink, pink, black, yellow, black, yellow, black				# eighth row
+]
+
+# unlock mode pattern for 8x8 RGB LED array
+unlock_led_pattern = [
+	blue, black, blue, cyan, black, black, cyan, record_color(record_toggle),	# first row
+	blue, black, blue, cyan, cyan, black, cyan, black,				# second row
+	blue, black, blue, cyan, black, cyan, cyan, black,				# third row
+	blue, blue, blue, cyan, black, black, cyan, black,				# fourth row
+	pink, black, black, black, yellow, black, black, black,				# fifth row
+	pink, black, black, black, yellow, black, yellow, black,			# sixth row
+	pink, black, black, black, yellow, yellow, black, black,			# seventh row
+	pink, pink, pink, black, yellow, black, yellow, black				# eighth row
+]
+
+
 
 def sigint_handler(signal_received, frame):
 
@@ -21,6 +90,8 @@ def sigint_handler(signal_received, frame):
 	print("Exiting logger script")
 	exit(0)
 
+def dislay_mode(mode):
+	return 0
 
 def log_orientation(mode):
 
@@ -46,6 +117,9 @@ def log_orientation(mode):
 		writer = csv.writer(file)
 		while True:
 
+			#  create signal for SIGINT interrupt and handle it with sigint_handler function
+			signal(SIGINT, sigint_handler)
+
 			# create data list variable and add orientation, current time, and mode
 			data = []
 			data.append(sense.get_orientation_degrees())
@@ -70,10 +144,11 @@ def log_orientation(mode):
 # main function
 if __name__ == "__main__":
 
-	#  create signal for SIGINT interrupt and handle it with sigint_handler function
-	signal(SIGINT, sigint_handler)
 
 	# create and instantiate sense-hat variable
 	sense = SenseHat()
+
+	sense.set_pixels(unlock_led_pattern)
+
 	# log the orientation
 	log_orientation(current_mode)
