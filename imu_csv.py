@@ -11,15 +11,25 @@
 			https://stackoverflow.com/questions/60208/replacements-for-switch-statement-in-python/
 			https://simonwillison.net/2004/May/7/switch/
 			https://stackoverflow.com/5445970/how-to-properly-print-a-list/
+			https://devdungeon.com/content/python-catch-sigint-ctrl-c/
 """
 
 
+from signal import signal, SIGINT
+from sys import exit
 from sense_hat import SenseHat
 from csv import writer
 from datetime import datetime
 
 record_toggle = True
 current_mode = "idle"
+
+
+def sigint_handler(signal_received, frame):
+
+	# print exit message when SIGINT/ctrl-c interrupt is caught
+	print("Exiting logger script")
+	exit(0)
 
 
 def log_orientation(mode):
@@ -70,6 +80,8 @@ def log_orientation(mode):
 # main function
 if __name__ == "__main__":
 
+	#  create signal for SIGINT interrupt and handle it with sigint_handler function
+	signal(SIGINT, sigint_handler)
 
 	# create and instantiate sense-hat variable
 	sense = SenseHat()
