@@ -2,8 +2,33 @@
 	File:		imu_csv.py
 	Written by: 	Daniel Castle
 	For: 		Dr. Kihei's research (secure traffic cabinets)
-"""
 
+	Description:
+		This Python script was created to track the orientation/motion of the Raspberry Pi
+		SenseHat over time, with some context specific implementation for Dr. Kihei's research.
+
+		The idea will be that the Pi will be attached to a door knob, with a person trying to perform
+		an action on the door knob (either unlocking it normally, lockpicking it, or leaving it idle).
+		The Pi will track the motion of the knob while the person does this, in order to use this data
+		for a machine learning model created and run by Dr. Kihei. Hopefully, we can use the data to
+		create a machine learning model that can reliably tell the difference between these actions.
+
+	TODO:
+		- The csv writer's formatting needs to be reorganized and cleaned up a bit
+
+		- A timer needs to be added that tracks the amount of time the script runs for. This time measurement
+			also needs to be added to the csv writer so it gets written as part of the data.
+
+		- The argv stuff in main for taking in command line arguments technically works, but it could be better.
+			(replace with argparse library later, see StackAbuse article in doc/references.txt)
+
+	References:
+		Since this was my first time really doing a deep dive into Python, I had to use a lot of resources,
+		to the point where it wouldn't be viable to put all the links to them in here. Instead, they are all
+		linked in a file called "references.txt" in the doc folder of this repo. Check there for resources on
+		how I made this script.
+
+"""
 
 from signal import signal, SIGINT
 from sys import exit
@@ -33,41 +58,30 @@ pick_led_pattern = [
 	black, pink, pink, black, yellow, black, yellow, black				# eighth row
 ]
 
-# idle mode pattern for 8x8 RGB LED array
-idle_led_pattern = [
-	blue, blue, blue, black, cyan, cyan, black, black,				# first row
-	black, blue, black, black, cyan, black, cyan, black,				# second row
-	black, blue, black, black, cyan, black, cyan, black,				# third row
-	blue, blue, blue, black, cyan, cyan, black, black,				# fourth row
-	pink, black, black, black, yellow, yellow, yellow, black,			# fifth row
-	pink, black, black, black, yellow, black, black, black,				# sixth row
-	pink, black, black, black, yellow, yellow, black, black,			# seventh row
-	pink, pink, pink, black, yellow, yellow, yellow, black				# eighth row
+# key mode pattern for 8x8 RGB LED array
+key_led_pattern = [
+	black, black, black, black, black, black, black, black,				# first row
+	black, black, black, black, black, yellow, yellow, black,			# second row
+	black, black, black, black, yellow, black, black, yellow,			# third row
+	yellow, yellow, yellow, yellow, yellow, black, black, yellow,			# fourth row
+	yellow, black, yellow, black, yellow, black, black, yellow,			# fifth row
+	yellow, black, yellow, black, black, yellow, yellow, black,			# sixth row
+	black, black, black, black, black, black, black, black, 			# seventh row
+	black, black, black, black, black, black, black, black				# eighth row
 ]
 
-# lock mode pattern for 8x8 RGB LED array
-lock_led_pattern = [
-	blue, black, black, black, black, cyan, black, black,				# first row
-	blue, black, black, black, cyan, black, cyan, black,				# second row
-	blue, black, black, black, cyan, black, cyan, black,				# third row
-	blue, blue, blue, black, black, cyan, black, black,				# fourth row
-	black, pink, pink, black, yellow, black, black, black,				# fifth row
-	pink, black, black, black, yellow, black, yellow, black,			# sixth row
-	pink, black, black, black, yellow, yellow, black, black, 			# seventh row
-	black, pink, pink, black, yellow, black, yellow, black				# eighth row
+# no key mode pattern for 8x8 RGB LED array
+nokey_led_pattern = [
+	red, black, black, black, black, black, black, red,				# first row
+	black, red, black, black, black, yellow, red, black,				# second row
+	black, black, red, black, yellow, red, black, yellow,				# third row
+	yellow, yellow, yellow, red, red, black, black, yellow,				# fourth row
+	yellow, black, yellow, red, red, black, black, yellow,				# fifth row
+	yellow, black, red, black, black, red, yellow, black,				# sixth row
+	black, red, black, black, black, black, red, black, 				# seventh row
+	red, black, black, black, black, black, black, red				# eighth row
 ]
 
-# unlock mode pattern for 8x8 RGB LED array
-unlock_led_pattern = [
-	blue, black, blue, cyan, black, black, cyan, black,				# first row
-	blue, black, blue, cyan, cyan, black, cyan, black,				# second row
-	blue, black, blue, cyan, black, cyan, cyan, black,				# third row
-	blue, blue, blue, cyan, black, black, cyan, black,				# fourth row
-	pink, black, black, black, yellow, black, black, black,				# fifth row
-	pink, black, black, black, yellow, black, yellow, black,			# sixth row
-	pink, black, black, black, yellow, yellow, black, black,			# seventh row
-	pink, pink, pink, black, yellow, black, yellow, black				# eighth row
-]
 
 
 def sigint_handler(signal_received, frame):
@@ -82,21 +96,20 @@ def display_mode(mode):
 
 	# switch statement to set current pattern for current mode
 	current_pattern = {
-		"unlock": unlock_led_pattern,
-		"lock"	:   lock_led_pattern,
 		"pick"	:   pick_led_pattern,
-		"idle"	:   idle_led_pattern
+		"key"	:   key_led_pattern,
+		"nokey"	:   nokey_led_pattern
 	}[mode]
 
 	# set the current pattern on the 8x8 RGB LED array
 	sense.set_pixels(current_pattern)
 
 
-def log_orientation(mode):
+def log_orientation(mode, name):
 
 	# append start date and time of logging to file name/path
 	# (this prevents file from being rewritten on next function call)
-	file_path = "./log/" + mode + "/" + mode + "_" + datetime.now().strftime("%m_%d_%Y_%H_%M_%S") + ".csv"
+	file_path = "./log/" + name + "_" + "log" + "_" + datetime.now().strftime("%m_%d_%Y_%H_%M_%S") + ".csv"
 
 	# import the csv library
 	import csv
@@ -105,8 +118,7 @@ def log_orientation(mode):
 	with open(file_path, 'w', newline='') as file:
 
 		# create a list that defines the header for the csv
-		csv_header = ['orientation', 'datetime', 'mode']
-
+		csv_header = ['orientation', 'datetime', 'mode', 'name']
 
 		# create and instantiate a csv writer
 		writer = csv.writer(file)
@@ -115,8 +127,6 @@ def log_orientation(mode):
 		writer.writerow(csv_header)
 
 		while True:
-			#  create signal for SIGINT interrupt and handle it with sigint_handler function
-			signal(SIGINT, sigint_handler)
 
 			# display the current mode on the 8x8 RGB LED array
 			display_mode(mode)
@@ -126,6 +136,7 @@ def log_orientation(mode):
 			data.append(sense.get_orientation_degrees())
 			data.append(datetime.now().strftime("%m_%d_%Y_%H_%M_%S"))
 			data.append(mode)
+			data.append(name)
 
 			# write the data list to the csv file
 			writer.writerow(data)
@@ -134,17 +145,24 @@ def log_orientation(mode):
 			print("\n".join(map(str, data)))
 
 
+
+
 # main function
 if __name__ == "__main__":
 
 	# create and instantiate sense-hat variable
 	sense = SenseHat()
 
+	#  create signal for SIGINT interrupt and handle it with sigint_handler function
+	signal(SIGINT, sigint_handler)
+
 	# check if the first argument is help
 	if argv[1] == "-help" or argv[1] == "help" or argv[1] == "-h":
-		print("		This script tracks the motion/orientation of the SenseHat, with different modes for tracking.")
-		print("		Current working modes: lock, unlock, idle, pick")
-	# take in first argument as the mode
+		print("		This script tracks the motion/orientation of the SenseHat, with different modes/types for tracking.")
+		print("		Current working modes: key, nokey, pick")
+		print(" 		Usage: python3 imu_csv.py [mode] [name]")
+	# take in first and second argument as the mode and name respectively
 	else:
-		log_orientation(argv[1])
+		log_orientation(argv[1], argv[2])
+
 
