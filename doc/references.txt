@@ -1,8 +1,23 @@
-https://pythonhosted.org/sense-hat/api/
-https://www.raspberrypi.org/documentation/hardware/sense-hat/
-https://projects.raspberrypi.org/en/projects/sense-hat-data-logger/
-https://projects.raspberrypi.org/en/projects/getting-started-with-the-sense-hat/
-https://stackoverflow.com/questions/60208/replacements-for-switch-statement-in-python/
-https://simonwillison.net/2004/May/7/switch/
-https://stackoverflow.com/5445970/how-to-properly-print-a-list/
-https://devdungeon.com/content/python-catch-sigint-ctrl-c/ 
+SenseHat general documentation: https://www.raspberrypi.org/documentation/hardware/sense-hat/
+
+SenseHat Python library documentation: https://pythonhosted.org/sense-hat/api/
+
+SenseHat Python tutorial: https://projects.raspberrypi.org/en/projects/getting-started-with-the-sense-hat/
+
+SenseHat data logging in Python tutorial: https://projects.raspberrypi.org/en/projects/sense-hat-data-logger/
+
+CSV Python tutorial: https://code.tutsplus.com/tutorials/how-to-read-and-write-csv-files-in-python--cms-29907
+
+Switch statements in Python: https://stackoverflow.com/questions/60208/replacements-for-switch-statement-in-python/
+
+Switch statements in Python [cont]: https://simonwillison.net/2004/May/7/switch/
+
+Python strftime() tutorial: https://www.programiz.com/python-programming/datetime/strftime
+
+
+How to print a list: https://stackoverflow.com/5445970/how-to-properly-print-a-list/
+
+SIGINT/crtl-c handler: https://devdungeon.com/content/python-catch-sigint-ctrl-c/ 
+
+Command line arguments in Python: https://stackabuse.com/command-line-arguments-in-python/
+
