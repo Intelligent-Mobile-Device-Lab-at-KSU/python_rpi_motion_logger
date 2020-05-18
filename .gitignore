@@ -1,2 +1,5 @@
 # ignore any generated csv files 
 *.csv
+*.swp
+*.csv.swp
+

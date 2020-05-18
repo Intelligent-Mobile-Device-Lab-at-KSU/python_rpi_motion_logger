@@ -14,8 +14,6 @@
 		create a machine learning model that can reliably tell the difference between these actions.
 
 	TODO:
-		- The csv writer's formatting needs to be reorganized and cleaned up a bit
-
 		- A timer needs to be added that tracks the amount of time the script runs for. This time measurement
 			also needs to be added to the csv writer so it gets written as part of the data.
 
@@ -118,7 +116,7 @@ def log_orientation(mode, name):
 	with open(file_path, 'w', newline='') as file:
 
 		# create a list that defines the header for the csv
-		csv_header = ['orientation', 'datetime', 'mode', 'name']
+		csv_header = ['roll', 'pitch', 'yaw', 'datetime', 'mode', 'name']
 
 		# create and instantiate a csv writer
 		writer = csv.writer(file)
@@ -131,9 +129,14 @@ def log_orientation(mode, name):
 			# display the current mode on the 8x8 RGB LED array
 			display_mode(mode)
 
+			# create and instantiate orientation object and record orientation to it
+			orientation = sense.get_orientation_degrees()
+
 			# create data list variable and add orientation, current time, and mode
 			data = []
-			data.append(sense.get_orientation_degrees())
+			data.append( "%s" % orientation["roll"] ) # record roll
+			data.append( "%s" % orientation["pitch"] ) # record pitch
+			data.append( "%s" % orientation["yaw"] ) # record yaw
 			data.append(datetime.now().strftime("%m_%d_%Y_%H_%M_%S"))
 			data.append(mode)
 			data.append(name)
