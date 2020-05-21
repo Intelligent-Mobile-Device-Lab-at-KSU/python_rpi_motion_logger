@@ -14,6 +14,7 @@ Switch statements in Python [cont]: https://simonwillison.net/2004/May/7/switch/
 
 Python strftime() tutorial: https://www.programiz.com/python-programming/datetime/strftime
 
+Python user input tutorial: https://pythonexamples.org/python-read-string-from-console/
 
 How to print a list: https://stackoverflow.com/5445970/how-to-properly-print-a-list/
 
