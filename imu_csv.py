@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+# makes sure the script runs in Python3
+
 """
 	File:		imu_csv.py
 	Written by: 	Daniel Castle
@@ -28,6 +31,7 @@
 
 """
 
+# import statements
 from signal import signal, SIGINT
 from sys import exit
 from sense_hat import SenseHat
@@ -86,7 +90,11 @@ def sigint_handler(signal_received, frame):
 
 	# print exit message when SIGINT/ctrl-c interrupt is caught
 	print("Exiting logger script")
+
+	# clear the RGB LED array
 	sense.clear()
+
+	# exit Python
 	exit(0)
 
 
