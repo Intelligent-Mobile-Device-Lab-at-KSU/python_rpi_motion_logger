@@ -17,9 +17,6 @@
 		create a machine learning model that can reliably tell the difference between these actions.
 
 	TODO:
-		- A timer needs to be added that tracks the amount of time the script runs for. This time measurement
-			also needs to be added to the csv writer so it gets written as part of the data.
-
 		- The argv stuff in main for taking in command line arguments technically works, but it could be better.
 			(replace with argparse library later, see StackAbuse article in doc/references.txt)
 
@@ -34,10 +31,12 @@
 # import statements
 from signal import signal, SIGINT
 from sys import exit
-from sense_hat import SenseHat
+from sense_hat import SenseHat, ACTION_PRESSED, ACTION_RELEASED, ACTION_HELD
+import csv
 from csv import writer
 from datetime import datetime
 from sys import argv
+import time
 
 # color definitions for SenseHat 8x8 RGB LED array
 red	 = (255,0,0)
@@ -125,14 +124,14 @@ def log_orientation(mode, name):
 	# (this prevents file from being rewritten on next function call)
 	file_path = "./log/" + name + "_" + "log" + "_" + datetime.now().strftime("%m_%d_%Y_%H_%M_%S") + ".csv"
 
-	# import the csv library
-	import csv
+	#fetch the start time using time() function
+	start_time = time.time()
 
 	# open the file at the specified path with write permission
 	with open(file_path, 'w', newline='') as file:
 
 		# create a list that defines the header for the csv
-		csv_header = ['roll', 'pitch', 'yaw', 'datetime', 'mode', 'name']
+		csv_header = ['roll(degrees)', 'pitch(degrees)', 'yaw(degrees)', 'datetime(month/day/year_hours:minutes:seconds)', 'runtime(seconds)', 'mode', 'name']
 
 		# create and instantiate a csv writer
 		writer = csv.writer(file)
@@ -141,32 +140,34 @@ def log_orientation(mode, name):
 		writer.writerow(csv_header)
 
 		while True:
-			event = sense.stick.wait_for_event()
 
-			if event.action == ACTION_PRESSED:
-				mode = pause_handler()
+			#for event in sense.stick.get_events():
 
-			else:
-				# display the current mode on the 8x8 RGB LED array
-				display_mode(mode)
+				#if event.action == ACTION_PRESSED:
+				#	mode = pause_handler()
 
-				# create and instantiate orientation object and record orientation to it
-				orientation = sense.get_orientation_degrees()
+				#else:
+					# display the current mode on the 8x8 RGB LED array
+					display_mode(mode)
 
-				# create data list variable and add orientation, current time, and mode
-				data = []
-				data.append( "%s" % orientation["roll"] ) # record roll
-				data.append( "%s" % orientation["pitch"] ) # record pitch
-				data.append( "%s" % orientation["yaw"] ) # record yaw
-				data.append(datetime.now().strftime("%m_%d_%Y_%H_%M_%S"))
-				data.append(mode)
-				data.append(name)
+					# create and instantiate orientation object and record orientation to it
+					orientation = sense.get_orientation_degrees()
 
-				# write the data list to the csv file
-				writer.writerow(data)
+					# create data list variable and add orientation, current time, and mode
+					data = []
+					data.append( "%s" % orientation["roll"] ) # record roll
+					data.append( "%s" % orientation["pitch"] ) # record pitch
+					data.append( "%s" % orientation["yaw"] ) # record yaw
+					data.append(datetime.now().strftime("%m/%d/%Y_%H:%M:%S"))
+					data.append(time.time() - start_time) # runtime (fetch current time and subtract start time to get runtime)
+					data.append(mode)
+					data.append(name)
 
-				# print the data list (for debug)
-				print("\n".join(map(str, data)))
+					# write the data list to the csv file
+					writer.writerow(data)
+
+					# print the data list (for debug)
+					print("\n".join(map(str, data)))
 
 
 

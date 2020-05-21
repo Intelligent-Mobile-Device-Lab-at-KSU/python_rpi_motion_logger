@@ -16,6 +16,8 @@ Python strftime() tutorial: https://www.programiz.com/python-programming/datetim
 
 Python user input tutorial: https://pythonexamples.org/python-read-string-from-console/
 
+Tracking runtime in Python: https://stackoverflow.com/questions/1557571/how-do-i-get-time-of-a-python-programs-execution/
+
 How to print a list: https://stackoverflow.com/5445970/how-to-properly-print-a-list/
 
 SIGINT/crtl-c handler: https://devdungeon.com/content/python-catch-sigint-ctrl-c/ 
