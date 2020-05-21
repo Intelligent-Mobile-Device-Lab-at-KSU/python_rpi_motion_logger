@@ -103,6 +103,14 @@ def display_mode(mode):
 	sense.set_pixels(current_pattern)
 
 
+def pause_handler():
+    
+    # read new mode from user input
+    new_mode = input("Logging script has been paused. Please input a new mode:")
+    
+    # return new mode
+    return new_mode
+
 def log_orientation(mode, name):
 
 	# append start date and time of logging to file name/path
@@ -126,26 +134,32 @@ def log_orientation(mode, name):
 
 		while True:
 
-			# display the current mode on the 8x8 RGB LED array
-			display_mode(mode)
+			event = sense.stick.wait_for_event()
+			
+			if event.action = ACTION_PRESSED:
+                            mode = pause_handler()
+                            
+			else:
+                            # display the current mode on the 8x8 RGB LED array
+                            display_mode(mode)
 
-			# create and instantiate orientation object and record orientation to it
-			orientation = sense.get_orientation_degrees()
+                            # create and instantiate orientation object and record orientation to it
+                            orientation = sense.get_orientation_degrees()
 
-			# create data list variable and add orientation, current time, and mode
-			data = []
-			data.append( "%s" % orientation["roll"] ) # record roll
-			data.append( "%s" % orientation["pitch"] ) # record pitch
-			data.append( "%s" % orientation["yaw"] ) # record yaw
-			data.append(datetime.now().strftime("%m_%d_%Y_%H_%M_%S"))
-			data.append(mode)
-			data.append(name)
+                            # create data list variable and add orientation, current time, and mode
+                            data = []
+                            data.append( "%s" % orientation["roll"] ) # record roll
+                            data.append( "%s" % orientation["pitch"] ) # record pitch
+                            data.append( "%s" % orientation["yaw"] ) # record yaw
+                            data.append(datetime.now().strftime("%m_%d_%Y_%H_%M_%S"))
+                            data.append(mode)
+                            data.append(name)
 
-			# write the data list to the csv file
-			writer.writerow(data)
+                            # write the data list to the csv file
+                            writer.writerow(data)
 
-			# print the data list (for debug)
-			print("\n".join(map(str, data)))
+                            # print the data list (for debug)
+                            print("\n".join(map(str, data)))
 
 
 
