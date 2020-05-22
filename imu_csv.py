@@ -30,12 +30,12 @@
 
 # import statements
 from signal import signal, SIGINT
-from sys import exit
-from sense_hat import SenseHat, ACTION_PRESSED, ACTION_RELEASED, ACTION_HELD
+import sys, select
+from sys import exit, argv
+from sense_hat import SenseHat
 import csv
 from csv import writer
 from datetime import datetime
-from sys import argv
 import time
 
 # color definitions for SenseHat 8x8 RGB LED array
@@ -83,6 +83,17 @@ nokey_led_pattern = [
 	red, black, black, black, black, black, black, red				# eighth row
 ]
 
+
+def keyboard_handler():
+
+	# pauses when Enter key is hit
+	# see https://stackoverflow.com/a/1450063
+	i,o,e = select.select([sys.stdin],[],[],0)
+	for s in i:
+		if s == sys.stdin:
+			input = sys.stdin.readline()
+			return True
+	return False
 
 
 def sigint_handler(signal_received, frame):
@@ -141,33 +152,33 @@ def log_orientation(mode, name):
 
 		while True:
 
-			#for event in sense.stick.get_events():
+			if  keyboard_handler():
+				mode = pause_handler()
+			else:
+				# display the current mode on the 8x8 RGB LED array
+				display_mode(mode)
 
-				#if event.action == ACTION_PRESSED:
-				#	mode = pause_handler()
+				# create and instantiate orientation object and record orientation to it
+				orientation = sense.get_orientation_degrees()
 
-				#else:
-					# display the current mode on the 8x8 RGB LED array
-					display_mode(mode)
+				# calculate runtime (fetch current time and subtract start time to get runtime)
+				runtime = time.time() - start_time
 
-					# create and instantiate orientation object and record orientation to it
-					orientation = sense.get_orientation_degrees()
+				# create data list variable and add orientation, current time, and mode
+				data = []
+				data.append( "%s" % orientation["roll"] ) # record roll
+				data.append( "%s" % orientation["pitch"] ) # record pitch
+				data.append( "%s" % orientation["yaw"] ) # record yaw
+				data.append(datetime.now().strftime("%m/%d/%Y_%H:%M:%S"))
+				data.append(runtime)
+				data.append(mode)
+				data.append(name)
 
-					# create data list variable and add orientation, current time, and mode
-					data = []
-					data.append( "%s" % orientation["roll"] ) # record roll
-					data.append( "%s" % orientation["pitch"] ) # record pitch
-					data.append( "%s" % orientation["yaw"] ) # record yaw
-					data.append(datetime.now().strftime("%m/%d/%Y_%H:%M:%S"))
-					data.append(time.time() - start_time) # runtime (fetch current time and subtract start time to get runtime)
-					data.append(mode)
-					data.append(name)
+				# write the data list to the csv file
+				writer.writerow(data)
 
-					# write the data list to the csv file
-					writer.writerow(data)
-
-					# print the data list (for debug)
-					print("\n".join(map(str, data)))
+				# print the data list (for debug)
+				print("\n".join(map(str, data)))
 
 
 
