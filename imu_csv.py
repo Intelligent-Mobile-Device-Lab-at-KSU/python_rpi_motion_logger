@@ -142,7 +142,7 @@ def log_orientation(mode, name):
 	with open(file_path, 'w', newline='') as file:
 
 		# create a list that defines the header for the csv
-		csv_header = ['roll(degrees)', 'pitch(degrees)', 'yaw(degrees)', 'datetime(month/day/year_hours:minutes:seconds)', 'runtime(seconds)', 'mode', 'name']
+		csv_header = ['roll(degrees)', 'pitch(degrees)', 'yaw(degrees)', 'x(Gs)', 'y(Gs)', 'z(Gs)', 'datetime(month/day/year_hours:minutes:seconds)', 'runtime(seconds)', 'mode', 'name']
 
 		# create and instantiate a csv writer
 		writer = csv.writer(file)
@@ -161,14 +161,20 @@ def log_orientation(mode, name):
 				# create and instantiate orientation object and record orientation to it
 				orientation = sense.get_orientation_degrees()
 
+				# create and instantiate raw acceleration object and record raw acceleration to it
+				raw_acceleration = sense.get_accelerometer_raw()
+
 				# calculate runtime (fetch current time and subtract start time to get runtime)
 				runtime = time.time() - start_time
 
 				# create data list variable and add orientation, current time, and mode
 				data = []
-				data.append( "%s" % orientation["roll"] ) # record roll
-				data.append( "%s" % orientation["pitch"] ) # record pitch
-				data.append( "%s" % orientation["yaw"] ) # record yaw
+				data.append( "%s" % orientation["roll"] )
+				data.append( "%s" % orientation["pitch"] )
+				data.append( "%s" % orientation["yaw"] )
+				data.append( "%s" % raw_acceleration["x"] )
+				data.append( "%s" % raw_acceleration["y"] )
+				data.append( "%s" % raw_acceleration["z"] )
 				data.append(datetime.now().strftime("%m/%d/%Y_%H:%M:%S"))
 				data.append(runtime)
 				data.append(mode)
