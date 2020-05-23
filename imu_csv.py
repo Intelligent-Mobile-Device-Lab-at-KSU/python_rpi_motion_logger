@@ -152,9 +152,14 @@ def log_orientation(mode, name):
 
 		while True:
 
+			# only execute if the keyboard handler detects input
 			if  keyboard_handler():
+
+				# assign new mode from user input
 				mode = pause_handler()
+
 			else:
+
 				# display the current mode on the 8x8 RGB LED array
 				display_mode(mode)
 
@@ -180,7 +185,7 @@ def log_orientation(mode, name):
 				data.append(mode)
 				data.append(name)
 
-				# write the data list to the csv file
+				# write the data list to the CSV file
 				writer.writerow(data)
 
 				# print the data list (for debug)
