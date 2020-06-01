@@ -16,10 +16,6 @@
 		for a machine learning model created and run by Dr. Kihei. Hopefully, we can use the data to
 		create a machine learning model that can reliably tell the difference between these actions.
 
-	TODO:
-		- The argv stuff in main for taking in command line arguments technically works, but it could be better.
-			(replace with argparse library later, see StackAbuse article in doc/references.txt)
-
 	References:
 		Since this was my first time really doing a deep dive into Python, I had to use a lot of resources,
 		to the point where it wouldn't be viable to put all the links to them in here. Instead, they are all
@@ -108,19 +104,28 @@ def sigint_handler(signal_received, frame):
 	exit(0)
 
 
-def pause_handler():
+def set_name():
 
-	# read new mode from user input
-	new_mode = input("Logging script has been paused. Please input a new mode:")
+	name_check = "N"
 
-	# return new mode
-	return new_mode
+	# while loop to wait for yes input (run this loop while N/n input is detected)
+	while (name_check.find("N") != -1) or (name_check.find("n") != -1):
+
+		# take in name from user input
+		name = input("Please type in your name and hit ENTER to confirm: ")
+
+		# ask the user to confirm that the name is right
+		name_check = input("Is this name correct? [enter Y/y for yes or N/n for no] --> " + name + ": ")
+
+	# return name
+	return name
 
 
 def select_mode():
 
 	# print mode select message
 	print("Please enter the number corresponding to the desired mode and hit ENTER to confirm:\n		[1->pick] [2->key] [3->nokey]")
+
 	# take in first charcter of input
 	num_mode = sys.stdin.read(1)
 
@@ -130,14 +135,14 @@ def select_mode():
 		num_mode = sys.stdin.read(1)
 
 	# switch statement to set new mode depending on number given by user
-	new_mode = {
+	mode = {
 		"1": "pick",
 		"2": "key",
 		"3": "nokey"
 	}[num_mode]
 
-	# return the new mode
-	return new_mode
+	# return the mode
+	return mode
 
 
 def display_mode(mode):
@@ -154,7 +159,11 @@ def display_mode(mode):
 
 
 
-def log_orientation(mode, name):
+def log_orientation():
+
+	name = set_name()
+
+	mode = select_mode()
 
 	# append start date and time of logging to file name/path
 	# (this prevents file from being rewritten on next function call)
@@ -228,12 +237,6 @@ if __name__ == "__main__":
 	#  create signal for SIGINT interrupt and handle it with sigint_handler function
 	signal(SIGINT, sigint_handler)
 
-	# check if the first argument is help
-	if argv[1] == "-help" or argv[1] == "help" or argv[1] == "-h":
-		print("		This script tracks the motion/orientation of the SenseHat, with different modes/types for tracking.")
-		print("		Current working modes: key, nokey, pick")
-		print(" 		Usage: python3 imu_csv.py [mode] [name]")
-	# take in first and second argument as the mode and name respectively
-	else:
-		log_orientation(argv[1], argv[2])
+	# run the log_orientation function
+	log_orientation()
 
