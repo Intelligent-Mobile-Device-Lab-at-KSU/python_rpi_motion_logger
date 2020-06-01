@@ -108,6 +108,38 @@ def sigint_handler(signal_received, frame):
 	exit(0)
 
 
+def pause_handler():
+
+	# read new mode from user input
+	new_mode = input("Logging script has been paused. Please input a new mode:")
+
+	# return new mode
+	return new_mode
+
+
+def select_mode():
+
+	# print mode select message
+	print("Please enter the number corresponding to the desired mode and hit ENTER to confirm:\n		[1->pick] [2->key] [3->nokey]")
+	# take in first charcter of input
+	num_mode = sys.stdin.read(1)
+
+	# make sure first character of input is a digit
+	#(there were errors where num_mode would resolve to "\n", so this loop was added to reconcile that)
+	while num_mode.isdigit() == False:
+		num_mode = sys.stdin.read(1)
+
+	# switch statement to set new mode depending on number given by user
+	new_mode = {
+		"1": "pick",
+		"2": "key",
+		"3": "nokey"
+	}[num_mode]
+
+	# return the new mode
+	return new_mode
+
+
 def display_mode(mode):
 
 	# switch statement to set current pattern for current mode
@@ -121,13 +153,6 @@ def display_mode(mode):
 	sense.set_pixels(current_pattern)
 
 
-def pause_handler():
-
-	# read new mode from user input
-	new_mode = input("Logging script has been paused. Please input a new mode:")
-
-	# return new mode
-	return new_mode
 
 def log_orientation(mode, name):
 
@@ -156,7 +181,7 @@ def log_orientation(mode, name):
 			if  keyboard_handler():
 
 				# assign new mode from user input
-				mode = pause_handler()
+				mode = select_mode()
 
 			else:
 
@@ -211,5 +236,4 @@ if __name__ == "__main__":
 	# take in first and second argument as the mode and name respectively
 	else:
 		log_orientation(argv[1], argv[2])
-
 
