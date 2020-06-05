@@ -176,7 +176,7 @@ def log_orientation():
 	with open(file_path, 'w', newline='') as file:
 
 		# create a list that defines the header for the csv
-		csv_header = ['roll(degrees)', 'pitch(degrees)', 'yaw(degrees)', 'x(Gs)', 'y(Gs)', 'z(Gs)', 'datetime(month/day/year_hours:minutes:seconds)', 'runtime(seconds)', 'mode', 'name']
+		csv_header = ['roll', 'pitch', 'yaw', 'x', 'y', 'z', 'timestamp', 'runtime', 'mode', 'name']
 
 		# create and instantiate a csv writer
 		writer = csv.writer(file)
@@ -239,4 +239,5 @@ if __name__ == "__main__":
 
 	# run the log_orientation function
 	log_orientation()
+
 
