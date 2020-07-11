@@ -34,12 +34,17 @@ import socket
 
 
 # IP addresses and ports (remote/local)
-remote_address=('24.99.125.134','20101')
-local_address=(socket.gethostbyname(socket.gethostname(),'40101')
+remote_address=('192.168.1.36',20101)
+local_address=('192.168.1.52',40101)
 
 
 # modifier variables for data (default = 1)
-pitch_var, roll_var, yaw_var, x_var, y_var, z_var = 1
+pitch_var = 1
+roll_var = 1
+yaw_var = 1
+x_var = 1
+y_var = 1
+z_var = 1
 
 # color definitions for SenseHat 8x8 RGB LED array
 red	 = (255,0,0)
@@ -153,6 +158,29 @@ def select_mode():
 	return mode
 
 
+def select_log_type():
+
+	# print logging type select message
+	print("Please enter the number corresponding to the desired logging type and hit ENTER to confirm:\n		[1->local CSV] [2->UDP server]")
+
+	# take in first charcter of input
+	num_log = sys.stdin.read(1)
+
+	# make sure first character of input is a digit
+	#(there were errors where num_mode would resolve to "\n", so this loop was added to reconcile that)
+	while num_log.isdigit() == False:
+		num_log = sys.stdin.read(1)
+
+	# switch statement to set new logging type depending on number given by user
+	log_type = {
+		"1": "CSV",
+		"2": "UDP"
+	}[num_log]
+
+	# return the logging type
+	return log_type
+
+
 def select_var():
 
 	# print var select message
@@ -167,7 +195,7 @@ def select_var():
 		num_var = sys.stdin.read(1)
 
 
-        new_var = input("Please type the desired numeric value for the selected variable modifier and hit ENTER to confirm: ")
+	new_var = input("Please type the desired numeric value for the selected variable modifier and hit ENTER to confirm: ")
 
 	# switch statement to set new variable modifier
 	{	"1": roll_var,
@@ -192,13 +220,6 @@ def display_mode(mode):
 	sense.set_pixels(current_pattern)
 
 
-def start_udp_rx():
-
-	rx = socket(socket.AF_INET, socket.SOCK_DGRAM)
-	rx.bind(local_address)
-	print("UDP RX started at: ", local_address)
-
-
 def log_orientation():
 
         # select logging type
@@ -207,10 +228,6 @@ def log_orientation():
 
 	if (log_type == "UDP"):
 
-		# start a receiving UDP socket by calling start_udp_rx()
-		start_udp_rx()
-		
-		
 		while True:
 			if keyboard_handler():
 				select_var()
@@ -219,23 +236,25 @@ def log_orientation():
 				raw_acceleration = sense.get_accelerometer_raw()
 
 				sendData = ("%s, %s, %s, %s, %s, %s" % (orientation["roll"]*roll_var, orientation["pitch"]*pitch_var, orientation["yaw"]*yaw_var, raw_acceleration["x"]*x_var, raw_acceleration["y"]*y_var, raw_acceleration["z"]*z_var))
-                
+
 				# sending data
 				tx = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-				tx.sendto(bytes(sendData, "utf-8"), (REMOTE_IP, REMOTE_PORT))
+				tx.sendto(bytes(sendData, "utf-8"), remote_address)
 				print("1. Server sent : ", sendData)
-				
+
 				time.sleep(1)
-				
+
 				# receiving data
-				print("####### Server is listening #######")
+				rx = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+				rx.bind(local_address)
+				print("UDP RX started at: ", local_address)
 				data, address = rx.recvfrom(4096)
 				received_mode = data.decode('utf-8')
 				print("2. Server received: ", received_mode)
 				display_mode(received_mode)
 
-		
-		
+
+
 	else:
 
 		# ask user to input their name for data logging by running set_name() function
@@ -243,7 +262,7 @@ def log_orientation():
 
 		# ask user to select a mode by running select_mode() function
 		mode = select_mode()
-		
+
 		# append start date and time of logging to file name/path
 		# (this prevents file from being rewritten on next function call)
 		file_path = "./log/" + name + "_" + "log" + "_" + datetime.now().strftime("%m_%d_%Y_%H_%M_%S") + ".csv"
@@ -287,7 +306,7 @@ def log_orientation():
 
 					# create data list variable and add orientation, current time, and mode
 					data = []
-					data.append( "%s" orientation["roll"] )
+					data.append( "%s" % orientation["roll"] )
 					data.append( "%s" % orientation["pitch"] )
 					data.append( "%s" % orientation["yaw"] )
 					data.append( "%s" % raw_acceleration["x"] )
